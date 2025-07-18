@@ -1,0 +1,19 @@
+backend:
+  name: git-gateway
+  branch: main # OU master - Verifique qual é a branch principal do seu repositório no GitHub/GitLab.
+
+media_folder: "public/uploads" # Pasta RELATIVA à raiz do seu projeto onde as imagens UPLOADED serão salvas
+public_folder: "/uploads"     # Caminho PÚBLICO para as imagens no seu site (começa com /)
+
+collections:
+  - name: "blog" # ID interno da sua coleção (não aparece para o usuário)
+    label: "Posts do Blog" # Nome que aparecerá no painel de administração
+    folder: "content/blog" # Pasta RELATIVA à raiz do projeto onde os posts de Markdown/JSON serão salvos
+    create: true # Permite criar novos posts
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}" # Formato do nome do arquivo (ex: 2023-10-27-meu-primeiro-post.md)
+    fields: # Definição dos campos para cada post
+      - {label: "Título", name: "title", widget: "string", required: true}
+      - {label: "Data de Publicação", name: "date", widget: "datetime", default: "", required: true}
+      - {label: "Autor", name: "author", widget: "string", required: false}
+      - {label: "Imagem de Capa", name: "cover_image", widget: "image", required: false, allow_multiple: false}
+      - {label: "Corpo do Post", name: "body", widget: "markdown"} # O editor de Markdown para o conteúdo principal

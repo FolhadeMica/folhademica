@@ -1,14 +1,10 @@
+// next.config.mjs
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   images: {
-    unoptimized: true,
+    domains: ['cdn.sanity.io'], // <<-- ESSENCIAL para imagens do Sanity
   },
-}
+  // ... outras configurações que você possa ter
+};
 
-export default nextConfig
+export default nextConfig;
