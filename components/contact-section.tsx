@@ -1,10 +1,15 @@
-// Conteúdo FINAL e COMPLETO para: components/contact-section.tsx
 'use client'
 
 import { useState } from 'react';
 import { Instagram, Mail, MapPin } from "lucide-react";
 
-export function ContactSection() {
+// Adicione 'id' ao tipo de props
+interface ContactSectionProps {
+  id?: string; // Torna o id opcional
+}
+
+// O componente agora recebe o prop 'id'
+export function ContactSection({ id }: ContactSectionProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -14,7 +19,8 @@ export function ContactSection() {
     e.preventDefault();
     setStatus('Enviando...');
 
-    const response = await fetch('COLE_SUA_URL_DO_FORMSPREE_AQUI', { // Lembre-se de colocar sua URL aqui
+    // Lembre-se de colocar sua URL do Formspree aqui
+    const response = await fetch('COLE_SUA_URL_DO_FORMSPREE_AQUI', { 
       method: 'POST',
       headers: { 'Accept': 'application/json' },
       body: new FormData(e.target as HTMLFormElement),
@@ -26,12 +32,14 @@ export function ContactSection() {
       setEmail('');
       setMessage('');
     } else {
-      setStatus('Ocorreu um erro. Tente novamente mais tarde.');
+      const data = await response.json();
+      setStatus(data.errors ? data.errors.map((err: any) => err.message).join(', ') : 'Ocorreu um erro. Tente novamente mais tarde.');
     }
   };
 
   return (
-    <section id="contato" className="bg-[#7a8471] py-16 px-4">
+    // Aplique o id à sua seção principal
+    <section id={id} className="bg-[#7a8471] py-16 px-4"> {/* <<-- ID aplicado aqui */}
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-start">
         {/* Formulário de Contato Funcional */}
         <div>
@@ -41,7 +49,7 @@ export function ContactSection() {
               <input id="name" type="text" name="name" placeholder="Nome" value={name} onChange={(e) => setName(e.target.value)} required className="w-full p-3 rounded bg-white/90 text-black placeholder:text-gray-600 border-none focus:outline-none focus:ring-2 focus:ring-white/50" />
               <input id="email" type="email" name="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full p-3 rounded bg-white/90 text-black placeholder:text-gray-600 border-none focus:outline-none focus:ring-2 focus:ring-white/50" />
               <textarea id="message" name="message" placeholder="Mensagem" rows={4} value={message} onChange={(e) => setMessage(e.target.value)} required className="w-full p-3 rounded bg-white/90 text-black placeholder:text-gray-600 border-none resize-none focus:outline-none focus:ring-2 focus:ring-white/50" />
-              <button type="submit" className="bg-[#8b6f47] hover:bg-[#7a6040] text-white px-8 py-3 rounded-full transition-colors cursor-pointer disabled:bg-gray-400">
+              <button type="submit" className="bg-[#8b6f47] hover:bg-[#7a6040] text-white px-8 py-3 rounded-full transition-colors cursor-pointer disabled:bg-gray-400" disabled={status === 'Enviando...'}>
                 Enviar
               </button>
               {status && <p className="text-white mt-4">{status}</p>}
@@ -49,7 +57,7 @@ export function ContactSection() {
           </form>
         </div>
 
-        {/* Location - CÓDIGO RESTAURADO AQUI */}
+        {/* Informações de Localização e Contato */}
         <div>
           <h2 className="text-4xl font-bold text-white mb-8">Nosso Local</h2>
           <div className="text-white space-y-6">
