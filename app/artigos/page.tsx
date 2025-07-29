@@ -1,77 +1,75 @@
-// components/articles-section.tsx
-'use client'; // Este é um Client Component
+// app/artigos/page.tsx
 
-import Link from 'next/link';
-import Image from 'next/image'; // Certifique-se de que next/image está importado
+'use client'; // ESSENCIAL: Esta é uma página de cliente para interatividade
 
-// Interface para as propriedades de um único card de artigo
-interface ArticleCardProps {
-  post: {
-    slug: string;
-    title: string;
-    imageUrl: string; // URL da imagem do card
-  };
-}
+// --- Importações Essenciais ---
+import { client } from '@/src/lib/sanity'; // Importe seu cliente Sanity
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
+import { ArticlesSection } from '@/components/articles-section'; // Componente que exibe a lista de artigos
 
-// Componente para renderizar um único card de artigo
-function ArticleCard({ post }: ArticleCardProps) {
-  return (
-    // Adicionamos 'refresh' ao Link para forçar um recarregamento completo da página
-    // Isso contorna problemas de navegação client-side para Server Components assíncronos.
-    <Link href={`/artigos/${post.slug}`} className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden" refresh>
-      <div className="relative w-full h-48 bg-gray-200">
-        {post.imageUrl && (
-          <Image 
-            src={post.imageUrl} 
-            alt={post.title} 
-            fill 
-            className="object-cover" 
-            sizes="(max-width: 768px) 100vw, 33vw" // Otimização de imagem para diferentes tamanhos de tela
-          />
-        )}
-      </div>
-      <div className="p-4">
-        <h3 className="text-xl font-semibold text-gray-800 mb-2">{post.title}</h3>
-        <p className="text-blue-600 text-sm">Clique para ler mais...</p>
-      </div>
-    </Link>
-  );
-}
+// Este 'export const dynamic' garante que a página sempre seja renderizada dinamicamente no servidor,
+// buscando os dados mais recentes a cada requisição.
+export const dynamic = 'force-dynamic';
 
-// Interface para as propriedades da seção de artigos
-interface ArticlesSectionProps {
-  posts: Array<{ // Tipo mais detalhado para os posts
-    _id: string;
-    title: string;
-    slug: string;
-    imageUrl: string;
-  }>;
-  showTitle?: boolean; // Se deve exibir o título "Artigos"
-}
+// --- Função Assíncrona para Buscar TODOS os Posts para a Lista ---
+// Esta função é um Server-side function (mesmo que a página seja Client-side, Next.js permite isso).
+async function getAllPostsFromSanity() {
+  // Query GROQ para buscar todos os posts, incluindo o slug e a URL da imagem do card
+  const query = `*[_type == "post"]{
+    _id,
+    title,
+    slug,
+    "imageUrl": cardImage.asset->url
+  }`;
 
-// Componente principal da seção de artigos
-export function ArticlesSection({ posts, showTitle = true }: ArticlesSectionProps) {
-  if (!posts || posts.length === 0) {
-    return (
-      <section className="py-12 px-4 bg-white">
-        <div className="max-w-6xl mx-auto text-center">
-          {showTitle && <h2 className="text-4xl font-bold text-gray-800 mb-8">Artigos</h2>}
-          <p className="text-lg text-gray-600">Nenhum artigo encontrado no momento.</p>
-        </div>
-      </section>
-    );
+  try {
+    console.log("Vercel (Server Component - Artigos): Tentando buscar TODOS os posts do Sanity...");
+    // A chamada a client.fetch() é onde o client do Sanity é usado para buscar os dados.
+    const posts = await client.fetch(query, {}); 
+
+    if (!posts || posts.length === 0) {
+      console.log("Vercel (Server Component - Artigos): Busca bem-sucedida, mas nenhum post foi retornado.");
+      return []; // Retorna um array vazio se não houver posts
+    }
+
+    console.log(`Vercel (Server Component - Artigos): Busca bem-sucedida! Encontrados ${posts.length} posts.`);
+    return posts; // Retorna a lista de posts
+
+  } catch (error) {
+    console.error("Vercel (Server Component - Artigos): ERRO CRÍTICO AO BUSCAR TODOS OS DADOS DO SANITY:", error);
+    let errorMessage = "Ocorreu um erro ao carregar os artigos.";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    // Lançar um erro aqui pode quebrar o build. Apenas logar pode ser melhor para a página carregar.
+    return []; // Retorna um array vazio para não quebrar a UI
   }
+}
+
+// --- O Componente da Página de Artigos (AllArticlesPage) ---
+export default async function AllArticlesPage() {
+  // Chamada da função assíncrona para buscar os posts.
+  // Como a página é 'use client', essa chamada é um Server Component que é renderizado antes da hidratação.
+  const posts = await getAllPostsFromSanity();
 
   return (
-    <section className="py-12 px-4 bg-white">
-      <div className="max-w-6xl mx-auto">
-        {showTitle && <h2 className="text-4xl font-bold text-gray-800 mb-8 text-center">Artigos</h2>}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {posts.map(post => (
-            <ArticleCard key={post.slug} post={post} />
-          ))}
+    <>
+      <Header />
+      <main className="bg-white">
+        {/* Cabeçalho específico desta página de artigos */}
+        <div className="bg-[#7a8471] text-white text-center py-20 px-4">
+          <h1 className="text-5xl font-bold">Artigos Científicos</h1>
+          <p className="text-lg mt-4 max-w-3xl mx-auto">
+            Explore nossa coleção de artigos sobre Geociências e Ciências da Terra, produzidos por pesquisadores do Instituto de Geociências da USP.
+          </p>
         </div>
-      </div>
-    </section>
+
+        {/* Renderiza a seção de artigos, passando a lista de posts e desativando o título interno da seção */}
+        <ArticlesSection posts={posts} showTitle={false} />
+
+      </main>
+      <Footer />
+    </>
   );
 }
