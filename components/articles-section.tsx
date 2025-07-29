@@ -1,57 +1,100 @@
-// Conteúdo DEFINITIVO para: components/articles-section.tsx
+// components/articles-section.tsx
+'use client'; // ESSENCIAL: Este componente é interativo
 
 import Link from 'next/link';
+import Image from 'next/image'; 
+import imageUrlBuilder from '@sanity/image-url'; // Importe imageUrlBuilder
+import { client } from '@/src/lib/sanity'; // Importe client
 
-import { Card, CardContent } from './ui/card';
+// Configuração do Image URL Builder para otimizar URLs de imagem do Sanity
+const builder = imageUrlBuilder(client);
+function urlFor(source: any) {
+  return builder.image(source);
+}
 
-export function ArticlesSection({ posts, showTitle = true }: { posts: any[], showTitle?: boolean }) {
+// Interface para as propriedades de um único card de artigo
+interface ArticleCardProps {
+  post: {
+    slug: string;
+    title: string;
+    imageUrl: string; // URL da imagem do card vinda do Sanity
+  };
+}
+
+// Componente para renderizar um único card de artigo
+function ArticleCard({ post }: ArticleCardProps) {
+  // Otimiza a URL da imagem para uma largura específica e qualidade para os cards
+  const optimizedCardImageUrl = urlFor(post.imageUrl)
+                                  .width(400) // Largura otimizada para o card
+                                  .height(200) // Altura otimizada para o card
+                                  .quality(75) // Qualidade da imagem (0-100)
+                                  .url();
+
   return (
-    <section id="artigos" className="py-16 px-4 bg-gray-50">
-      <div className="max-w-6xl mx-auto">
-        {showTitle && <h2 className="text-4xl font-bold text-center mb-12 text-[#7a8471]">Artigos</h2>}
-
-        {posts && posts.length > 0 ? (
-          <>
-            <div className="grid md:grid-cols-3 gap-8">
-              {posts.map((post: any) => (
-                <Link href={`/artigos/${post.slug?.current || ''}`} key={post._id} className="group block">
-                  <Card className="bg-[#7a8471] text-white overflow-hidden h-full flex flex-col transition-shadow duration-300 hover:shadow-xl">
-
-                    {/* ESTA É A PARTE QUE EXIBE A IMAGEM */}
-                    <div className="relative h-48 w-full overflow-hidden">
-                      {post.imageUrl ? (
-                        <img
-  src={post.imageUrl}
-  alt={`Imagem de capa para o post: ${post.title}`}
-  className="absolute h-full w-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
-/>
-                      ) : (
-                        <div className="w-full h-full bg-gray-300 flex items-center justify-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path></svg>
-                        </div>
-                      )}
-                    </div>
-
-                    <CardContent className="p-6 flex-grow">
-                      <div className="bg-white rounded p-4 text-black h-full">
-                        <h3 className="font-bold text-lg mb-2">{post.title}</h3>
-                        <p className="text-sm text-gray-600">Clique para ler mais...</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-
-            <div className="text-center mt-12">
-              <Link href="/artigos" className="inline-block bg-[#7a8471] hover:bg-[#6a7461] text-white px-8 py-3 rounded-full font-semibold transition-colors">
-                Ver todos os artigos
-              </Link>
-            </div>
-          </>
-        ) : (
-          <p className="text-center">Nenhum artigo encontrado.</p>
+    // Usamos uma tag <a> com onClick para forçar um recarregamento completo da página.
+    // Isso contorna problemas de navegação client-side que causam "Application error" no Next.js App Router.
+    <a 
+      href={`/artigos/${post.slug}`} 
+      className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden" 
+      onClick={(e) => {
+        e.preventDefault(); // Previne a navegação padrão do Next.js (que pode bugar)
+        window.location.href = `/artigos/${post.slug}`; // Força um recarregamento completo da página (como se fosse F5)
+      }}
+    >
+      <div className="relative w-full h-48 bg-gray-200">
+        {post.imageUrl && (
+          <Image 
+            src={optimizedCardImageUrl || post.imageUrl} // Usa a URL otimizada ou a original como fallback
+            alt={post.title} 
+            fill // Faz a imagem preencher o contêiner pai
+            className="object-cover" // Garante que a imagem cubra o espaço mantendo a proporção
+            sizes="(max-width: 768px) 100vw, 33vw" // Define tamanhos para otimização responsiva do Next.js Image
+          />
         )}
+      </div>
+      <div className="p-4">
+        <h3 className="text-xl font-semibold text-gray-800 mb-2">{post.title}</h3>
+        <p className="text-blue-600 text-sm">Clique para ler mais...</p>
+      </div>
+    </a>
+  );
+}
+
+// Interface para as propriedades da seção de artigos
+interface ArticlesSectionProps {
+  posts: Array<{ 
+    _id: string;
+    title: string;
+    slug: string;
+    imageUrl: string;
+  }>;
+  showTitle?: boolean; // Se deve exibir o título "Artigos"
+}
+
+// Componente principal da seção de artigos
+export function ArticlesSection({ posts, showTitle = true }: ArticlesSectionProps) {
+  // Exibe uma mensagem se nenhum post for encontrado
+  if (!posts || posts.length === 0) {
+    return (
+      <section className="py-12 px-4 bg-white">
+        <div className="max-w-6xl mx-auto text-center">
+          {showTitle && <h2 className="text-4xl font-bold text-gray-800 mb-8">Artigos</h2>}
+          <p className="text-lg text-gray-600">Nenhum artigo encontrado no momento.</p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="py-12 px-4 bg-white">
+      <div className="max-w-6xl mx-auto">
+        {showTitle && <h2 className="text-4xl font-bold text-gray-800 mb-8 text-center">Artigos</h2>}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {posts.map(post => (
+            // Renderiza um ArticleCard para cada post
+            <ArticleCard key={post.slug} post={post} />
+          ))}
+        </div>
       </div>
     </section>
   );
