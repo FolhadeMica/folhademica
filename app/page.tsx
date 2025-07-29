@@ -1,12 +1,14 @@
-'use client'; // ESSENCIAL: Mantém a página como Client Component para usar Header/Footer e interatividade
+// app/page.tsx
+
+'use client'; 
 
 // --- Imports dos Componentes da Página ---
 import { Header } from '@/components/header';
-import { HeroSection } from '@/components/hero-section';
-import { AboutSection } from '@/components/about-section';
+import { HeroSection } from '@/components/hero-section'; 
+import { AboutSection } from '@/components/about-section'; 
 import { ArticlesSection } from '@/components/articles-section'; 
 import { InstagramSection } from '@/components/instagram-section'; 
-import { ContactSection } from '@/components/contact-section'; // Importe conforme o caminho real (components/)
+import { ContactSection } from '@/components/contact-section'; 
 import { Footer } from '@/components/footer';
 import Link from 'next/link'; 
 
@@ -52,12 +54,17 @@ export default async function HomePage() {
     <div className="min-h-screen bg-white">
       <Header />
       <HeroSection />
-      <AboutSection id="sobre-o-projeto" /> {/* ID para a seção "Sobre o Projeto" */}
+      <AboutSection id="sobre-o-projeto" />
       <ArticlesSection posts={posts} /> 
       <InstagramSection />
-      {/* Adicione o ID à ContactSection aqui */}
-      <ContactSection id="contato" /> {/* <<-- Adicionado o prop 'id' */}
+      <ContactSection id="contato" />
       <Footer />
+      {/* Link "Ver todos os artigos" na página inicial */}
+      <div className="text-center py-8 px-4">
+        <Link href="/artigos" className="text-blue-600 hover:underline" refresh> {/* <<-- Adicionado 'refresh' aqui! */}
+          Ver todos os artigos
+        </Link>
+      </div>
     </div>
   );
 }
