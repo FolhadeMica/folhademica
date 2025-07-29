@@ -1,3 +1,4 @@
+// components/about-section.tsx
 'use client';
 
 import React from 'react';
@@ -12,29 +13,21 @@ interface AboutSectionProps {
 export function AboutSection({ id }: AboutSectionProps) {
   return (
     // A propriedade 'id' é aplicada ao elemento <section>, permitindo que os links de âncora funcionem.
-    <section id={id} className="bg-[#e0e0e0] py-16 px-4">
+    // A cor de fundo bg-[#7a8471] foi aplicada aqui, correspondendo ao verde da sua imagem.
+    <section id={id} className="bg-[#7a8471] py-16 px-4 text-white"> {/* <<-- Cor de fundo alterada e texto branco */}
       <div className="max-w-4xl mx-auto text-center">
-        <h2 className="text-4xl font-bold text-gray-800 mb-6">Sobre o Projeto</h2>
-        <p className="text-lg text-gray-700 leading-relaxed mb-4">
-          O Projeto Folha de Mica é uma iniciativa dedicada à divulgação científica e ao estudo das Geociências, com foco em temas como geologia, mineralogia, paleontologia e processos terrestres. Nosso objetivo é tornar o conhecimento científico acessível a todos, promovendo a curiosidade e o entendimento sobre o planeta em que vivemos.
+        <h2 className="text-4xl font-bold mb-6">Sobre o Projeto</h2>
+        {/* Texto atualizado conforme sua solicitação */}
+        <p className="text-lg leading-relaxed mb-4">
+          Folha de Mica é um projeto de extensão aberto a toda a comunidade, com foco no universo acadêmico
+          das Geociências. Com o apoio do Prof. Dr. Paulo César Boggiani, a iniciativa busca integrar os
+          ingressantes dos cursos de Geociências e Ciências da Terra, ao mesmo tempo que valoriza a produção
+          científica local, destacando artigos desenvolvidos por docentes e pesquisadores do próprio Instituto de
+          Geociências (IGc). Além disso, a Folha de Mica tem como missão democratizar o conhecimento
+          geológico por meio da linguagem científica, promovendo o diálogo entre a universidade e a sociedade. O
+          projeto se materializa por meio de uma newsletter quinzenal, enviada gratuitamente aos assinantes, com
+          conteúdo acessível, seguro e de qualidade.
         </p>
-        <p className="text-lg text-gray-700 leading-relaxed mb-4">
-          Somos uma equipe de entusiastas e pesquisadores do Instituto de Geociências da Universidade de São Paulo (USP), comprometidos em compartilhar informações precisas e envolventes sobre as maravilhas da Terra. Acreditamos que a ciência é para todos e que, ao compreendermos melhor nosso ambiente, podemos tomar decisões mais informadas para o futuro.
-        </p>
-        <p className="text-lg text-gray-700 leading-relaxed">
-          Explore nossos artigos, descubra novas perspectivas e junte-se a nós nesta jornada de aprendizado contínuo.
-        </p>
-        {/*
-          Aqui você pode adicionar um link ou botão para voltar ao topo ou para outra seção,
-          se desejar, usando o componente Link do Next.js.
-        */}
-        {/*
-        <div className="mt-8">
-          <Link href="/" className="text-blue-600 hover:underline">
-            Voltar para a página inicial
-          </Link>
-        </div>
-        */}
       </div>
     </section>
   );
