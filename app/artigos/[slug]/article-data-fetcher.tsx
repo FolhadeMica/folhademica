@@ -205,4 +205,5 @@ export default async function ArticleFetcher({ slug }: ArticleFetcherProps) {
       </div>
 
     </div>
-  )
+  );
+}
