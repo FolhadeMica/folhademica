@@ -61,9 +61,17 @@ export default async function HomePage() {
       <Footer />
       {/* Link "Ver todos os artigos" na página inicial */}
       <div className="text-center py-8 px-4">
-        <Link href="/artigos" className="text-blue-600 hover:underline" refresh> {/* <<-- Adicionado 'refresh' aqui! */}
+        {/* Alterado para tag <a> com onClick para forçar refresh e evitar erro de tipagem no <Link> */}
+        <a 
+          href="/artigos" 
+          className="text-blue-600 hover:underline" 
+          onClick={(e) => {
+            e.preventDefault(); // Previne a navegação padrão do Next.js
+            window.location.href = "/artigos"; // Força um recarregamento completo da página
+          }}
+        >
           Ver todos os artigos
-        </Link>
+        </a>
       </div>
     </div>
   );
